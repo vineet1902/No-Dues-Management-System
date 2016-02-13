@@ -1,0 +1,37 @@
+application: no-dues
+version: 1
+runtime: php
+api_version: 1
+
+handlers:
+- url: /css
+  static_dir: dbms1/css
+
+- url: /js
+  static_dir: dbms1/js
+
+- url: /fonts
+  static_dir: dbms1/fonts
+
+- url: /img
+  static_dir: dbms1/img
+
+- url: /admin/(.+)
+  script: dbms1/admin/\1
+  secure: always
+
+- url: /admin/
+  script: dbms1/admin/index.php
+  secure: always
+
+- url: /(.+).php
+  script: dbms1/\1.php
+
+- url: /(.+)?/?
+  script: dbms1/index.php
+
+skip_files:
+- ^(.*/)?\.zip$
+- ^(.*/)?\.bat$
+- ^(.*/)?\.sh$
+- ^(.*/)?\.md$

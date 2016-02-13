@@ -1,0 +1,48 @@
+<?php
+	include('db_connection.php');
+	if(session_id()==""){
+		session_start();
+	}
+	if(!isset($_SESSION['login_as'])){
+		header('location:index.php');
+	}
+	else if(isset($_SESSION['login_as'])&&strcmp($_SESSION['login_as'],"admin")!=0){
+		header('location:index.php');
+	}
+	if(isset($_POST['submit'])){
+		$name=mysql_real_escape_string(stripslashes($_POST['name']));
+		$roll=mysql_real_escape_string(stripslashes($_POST['roll']));
+		$pass=mysql_real_escape_string(stripslashes($_POST['password']));
+		$pass1=mysql_real_escape_string(stripslashes($_POST['confirm-password']));
+		$hostel=mysql_real_escape_string(stripslashes($_POST['hostel']));
+		$email = mysql_real_escape_string(stripslashes($_POST['email']));
+		if(strcmp($pass,$pass1)==0){
+			$pass = encrypt($pass,ENCRYPTION_KEY);
+			$query = mysql_query("select * from student where roll='$roll'",$connection);
+			if(mysql_num_rows($query)==0){
+				$query = mysql_query("select * from email where email='$email'",$connection);
+				if(mysql_num_rows($query)==0){
+					$keys = generateRandomString(10);
+					$query = mysql_query("insert into student (name,roll,password,hostel) values ('".$name."','".$roll."','".$pass."','".$hostel."')",$connection);
+					//$query = mysql_query("insert into")
+					$query = mysql_query("insert into `email` (`roll`,`email`,`key`) values ('".$roll."','".$email."','".$keys."');",$connection);
+					if($query){
+						header('location:admin-student.php?error=none');
+					}
+					else{
+						header('location:admin-student.php?error=connection');
+					}
+				}
+				else{
+					header('location:admin-student.php?error=email');
+				}
+			}
+			else{
+				header('location:admin-student.php?error=duplicate');
+			}
+		}
+		else{
+			header('location:admin-student.php?error=match');
+		}
+	}
+?>
